@@ -1,5 +1,3 @@
-#POST para Respostas
-#URL: https://emocionometer02-default-rtdb.firebaseio.com/
 import requests
 
 import smtplib
@@ -8,6 +6,9 @@ from email.mime.multipart import MIMEMultipart
 
 from flask import Flask,jsonify,request
 from datetime import datetime
+
+
+app = Flask(__name__)
 
 # Configurações do servidor SMTP do Gmail
 smtp_server = "smtp.gmail.com: 587"
@@ -20,7 +21,6 @@ smtp_password = "ihtekcmxtnxszihd"
 firebase_url = "https://emocionometer02-default-rtdb.firebaseio.com/"
 firebase_db_path = "Respostas"
 
-app = Flask(__name__)
 
 respostas = requests.get(f"{firebase_url}{firebase_db_path}.json").json()
 
@@ -59,15 +59,17 @@ def incluir_nova_resposta():
     data = agora.strftime("%d/%m/%Y")
     hora = agora.strftime("%H:%M:%S")
     resposta = "Estou bem" if nova_resposta["Resposta"] == "3" else ("Estou preocupado" if nova_resposta["Resposta"] == "2" else "Não estou bem")
-     
+    
+    # Adiciona os campos abaixo ao json a ser enviado
     nova_resposta["id_lanc"] = agora.microsecond
     nova_resposta["Resposta"] = resposta
     nova_resposta["Data"] = data
     nova_resposta["Hora"] = hora
 
-    # Realize a solicitação POST para escrever dados
-    response = requests.post(f"{firebase_url}{firebase_db_path}.json", json=nova_resposta)
+    # Realiza a solicitação POST para escrever dados
+    response = requests.post(f"{firebase_url}{firebase_db_path}.json?auth=AfhEvdfvDTz196KrTiR6VbecylUyezgPApgq6FCi", json=nova_resposta)
 
+    #Se a resposta for diferente de "Estou bem", faz o envio de e-mail
     if resposta!="Estou bem":
         # Criar uma mensagem de e-mail
         mensagem = MIMEMultipart()
@@ -109,4 +111,4 @@ def excluir_resposta(id):
             return jsonify(respostas)
 
 
-app.run(port=5000, host='localhost',debug=True)
+app.run(port=5000, host='emocionometer02.web.app',debug=True)
