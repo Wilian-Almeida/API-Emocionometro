@@ -1,6 +1,7 @@
 import requests
 
 import smtplib
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -111,4 +112,4 @@ def excluir_resposta(id):
             return jsonify(respostas)
 
 
-app.run(port=5000, host='emocionometer02.web.app',debug=True)
+app.run(port=int(os.environ.get('PORT', 8080)), host='0.0.0.0',debug=True)
