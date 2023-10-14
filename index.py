@@ -1,7 +1,6 @@
 import requests
-
 import smtplib
-import os
+import pytz
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -28,7 +27,7 @@ respostas = requests.get(f"{firebase_url}{firebase_db_path}.json").json()
 
 
 #Consultar todas as respostas
-@app.route('/Respostas', methods=['GET'])
+@app.route('/', methods=['GET'])
 def obter_respostas():
     return jsonify(respostas)
 
@@ -52,11 +51,12 @@ def editar_resposta_por_id(id):
 @app.route('/Respostas', methods=['POST'])
 def incluir_nova_resposta():
     nova_resposta = request.get_json() # Substitua pelos dados que deseja postar
-    
+    tz_brasilia = pytz.timezone('America/Sao_Paulo')
+
     registro = nova_resposta["Registro"]
     equipamento = nova_resposta["Equipamento"]
     local = nova_resposta["Local"]
-    agora = datetime.now()
+    agora = datetime.now(tz_brasilia)
     data = agora.strftime("%d/%m/%Y")
     hora = agora.strftime("%H:%M:%S")
     resposta = "Estou bem" if nova_resposta["Resposta"] == "3" else ("Estou preocupado" if nova_resposta["Resposta"] == "2" else "Não estou bem")
@@ -112,4 +112,4 @@ def excluir_resposta(id):
             return jsonify(respostas)
 
 
-app.run(port=int(os.environ.get('PORT', 8080)), host='0.0.0.0',debug=True)
+#app.run(port=5000, host='localhost',debug=True)
